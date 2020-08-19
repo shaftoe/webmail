@@ -1,4 +1,4 @@
-function sendMail(mailFrom, mailTo, subject, text) {
+function sendMail(mailFrom, mailTo, subject, text, cc = [], bcc = []) {
     const lambda = new AWS.Lambda()
 
     const payload = {
@@ -6,6 +6,8 @@ function sendMail(mailFrom, mailTo, subject, text) {
         mail_to: mailTo,
         subject: subject,
         text: text,
+        mail_cc: cc,
+        mail_bcc: bcc,
     }
 
     const params = {

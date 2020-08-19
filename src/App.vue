@@ -1,5 +1,6 @@
 <template>
     <div class="flex flex-wrap justify-center">
+
       <div v-if="error" class="text-red-600 text-left p-3 text-2xl max-w-s">{{ error }}</div>
       <div v-if="sent" class="text-left p-3 text-2xl max-w-s">{{ sent }}</div>
 
@@ -21,11 +22,17 @@
 
       <form @submit.prevent="onSubmit" v-else class="min-w-full">
         <fieldset :disabled="loading" class="form grid grid-cols-6">
-          <label for="mailfrom" type="email" class="col-span-2">Mail from:</label>
+          <label for="mailfrom" type="text" class="col-span-2">Mail from:</label>
           <input v-model="mailFrom" id="mailfrom" type="text" class="col-span-4 input" required>
 
-          <label for="mailto" type="email" class="col-span-2">Mail to:</label>
+          <label for="mailto" type="text" class="col-span-2">Mail to:</label>
           <input v-model="mailTo" id="mailto" type="text" class="col-span-4 input" required>
+
+          <label for="mailcc" type="text" class="col-span-2">Cc:</label>
+          <input v-model="mailCc" id="mailcc" type="text" class="col-span-4 input">
+
+          <label for="mailbcc" type="text" class="col-span-2">Bcc:</label>
+          <input v-model="mailBcc" id="mailbcc" type="text" class="col-span-4 input">
 
           <label for="subject" class="col-span-2">Subject:</label>
           <input v-model="subject" id="subject" type="text" class="col-span-4 input" required>
@@ -40,6 +47,7 @@
           </div>
         </fieldset>
       </form>
+
       <footer class="mt-10 min-w-full flex flex-wrap justify-around bg-green-700 text-white shadow-md">
         <small class="m-5">
           Last update: {{ lastUpdate }}
@@ -48,6 +56,7 @@
           Version: <a :href="versionCommit">{{ version }}</a>
         </small>
       </footer>
+
     </div>
 </template>
 
@@ -61,6 +70,8 @@ export default {
     return {
       mailTo: "",
       mailFrom: "",
+      mailCc: "",
+      mailBcc: "",
       subject: "",
       message: "",
       accessKey: null,
@@ -80,7 +91,7 @@ export default {
       this.error = null
       this.sent = null
       this.loading = true
-      sendMail(this.mailFrom, this.mailTo, this.subject, this.message)
+      sendMail(this.mailFrom, this.mailTo, this.subject, this.message, this.cc, this.bcc)
         .then(messageID => {
           this.loading = false
           this.sent = `Message sent: ${messageID}`
@@ -108,6 +119,8 @@ export default {
       this.sent = null
       this.mailTo = ""
       this.mailFrom = ""
+      this.mailCc = ""
+      this.mailBcc = ""
       this.subject = ""
       this.message = ""
       this.loading = false
@@ -117,6 +130,16 @@ export default {
   computed: {
     authOK() {
       return (this.accessKey && this.secretKey && this.loggedIn)
+    },
+
+    cc() {
+      if (this.mailCc.match(/^ *$/)) return []
+      return this.mailCc.split(",").map(item => item.trim())
+    },
+
+    bcc() {
+      if (this.mailBcc.match(/^ *$/)) return []
+      return this.mailBcc.split(",").map(item => item.trim())
     },
   },
 }
